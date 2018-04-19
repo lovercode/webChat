@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.codelover.dao.ChatMapper">
+  <resultMap id="BaseResultMap" type="com.codelover.bean.Chat">
+    <id column="chat_id" jdbcType="CHAR" property="chatId" />
+    <result column="chat_info" jdbcType="VARCHAR" property="chatInfo" />
+    <result column="chat_from" jdbcType="CHAR" property="chatFrom" />
+    <result column="chat_to" jdbcType="CHAR" property="chatTo" />
+    <result column="chat_time" jdbcType="BIGINT" property="chatTime" />
+    <result column="chat_type" jdbcType="CHAR" property="chatType" />
+  </resultMap>
+  <resultMap id="NeedReadResultMap" type="com.codelover.bean.Chat">
+    <!-- <id column="chat_id" jdbcType="CHAR" property="chatId" /> -->
+    <!-- <result column="chat_info" jdbcType="VARCHAR" property="chatInfo" /> -->
+    <result column="chat_from" jdbcType="CHAR" property="chatFrom" />
+    <result column="chat_to" jdbcType="CHAR" property="chatTo" />
+    <!-- <result column="chat_time" jdbcType="BIGINT" property="chatTime" /> -->
+    <result column="chat_type" jdbcType="CHAR" property="chatType" />
+    <result column="sum" jdbcType="INTEGER" property="sum" />
+    <association property="fromUserInfo" javaType="com.codelover.bean.User"> 
+        <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    </association>  
+  </resultMap>
+  <resultMap id="NeedReadRoomResultMap" type="com.codelover.bean.Chat">
+    <!-- <id column="chat_id" jdbcType="CHAR" property="chatId" /> -->
+    <!-- <result column="chat_info" jdbcType="VARCHAR" property="chatInfo" /> -->
+    <result column="chat_from" jdbcType="CHAR" property="chatFrom" />
+    <result column="chat_to" jdbcType="CHAR" property="chatTo" />
+    <!-- <result column="chat_time" jdbcType="BIGINT" property="chatTime" /> -->
+    <result column="chat_type" jdbcType="CHAR" property="chatType" />
+    <result column="sum" jdbcType="INTEGER" property="sum" />
+    <association property="chatRoom" javaType="com.codelover.bean.ChatRoom"> 
+        <result column="room_name" jdbcType="VARCHAR" property="roomName" />
+    </association>  
+  </resultMap>
+  <resultMap id="MyResultMap" type="com.codelover.bean.Chat">
+    <id column="chat_id" jdbcType="CHAR" property="chatId" />
+    <result column="chat_info" jdbcType="VARCHAR" property="chatInfo" />
+    <result column="chat_from" jdbcType="CHAR" property="chatFrom" />
+    <result column="chat_to" jdbcType="CHAR" property="chatTo" />
+    <result column="chat_time" jdbcType="BIGINT" property="chatTime" />
+    <result column="chat_type" jdbcType="CHAR" property="chatType" />
+    <association property="fromUserInfo" javaType="com.codelover.bean.User"> 
+        <result column="user_name" jdbcType="VARCHAR" property="userName" />
+	    <result column="user_sex" jdbcType="CHAR" property="userSex" />
+	    <result column="user_real_name" jdbcType="VARCHAR" property="userRealName" />
+	    <result column="user_age" jdbcType="INTEGER" property="userAge" />
+	    <result column="user_qq" jdbcType="VARCHAR" property="userQq" />
+	    <result column="user_wechat" jdbcType="VARCHAR" property="userWechat" />
+	    <result column="user_email" jdbcType="VARCHAR" property="userEmail" />
+	    <result column="user_img" jdbcType="VARCHAR" property="userImg" />
+	    <result column="user_word" jdbcType="VARCHAR" property="userWord" />
+	    <result column="user_status" jdbcType="VARCHAR" property="userStatus" />
+    </association>  
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    chat_id, chat_info, chat_from, chat_to, chat_time, chat_type
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from chat
+    where chat_id = #{chatId,jdbcType=CHAR}
+  </select>
+  
+  <!-- 查找当前聊天对象未读消息 -->
+	<select id="selectByFromTo" parameterType="java.lang.String" resultMap="BaseResultMap">
+	select 
+	*
+	from chat
+	left join read_record on
+	chat.chat_id = read_record.chat_id
+	where 
+	chat.chat_from = #{arg0,jdbcType=CHAR}
+	and 
+	chat.chat_to = #{arg1,jdbcType=CHAR}
+	and status=0
+	<!-- and chat_type=&quot;普通消息&quot; -->
+	order by chat.chat_time
+	</select>
+	<!-- 查找当前聊天对象的历史消息 -->
+	<select id="selectHistoryMsg" resultMap="BaseResultMap">
+	select 
+	*
+	from chat
+	<!-- left join read_record on
+	chat.chat_id = read_record.chat_id -->
+	where 
+	chat.chat_from = #{userId,jdbcType=CHAR}
+	and 
+	chat.chat_to = #{myId,jdbcType=CHAR}
+	or
+	chat.chat_from = #{myId,jdbcType=CHAR}
+	and 
+	chat.chat_to = #{userId,jdbcType=CHAR}
+	order by chat.chat_time DESC
+	limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+	</select>
+	<!-- 查找群历史消息 -->
+	<select id="selectRoomHistoryMsg" resultMap="MyResultMap">
+	select 
+	*
+	from chat
+	left join user on
+	chat.chat_from = user.user_id 
+	where 
+	chat.chat_to = #{roomId,jdbcType=CHAR}
+	order by chat.chat_time DESC
+	limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+	</select>
+	
+	
+	
+	<!-- 返回群消息 -->
+	<select id="selectByRoom" parameterType="java.lang.String" resultMap="MyResultMap">
+    select 
+    *
+    from chat
+    left join read_record on
+	chat.chat_id = read_record.chat_id
+	left join user on
+	user.user_id = chat.chat_from
+    where chat.chat_to = #{arg0,jdbcType=CHAR}
+    and read_record.user_id=#{arg1,jdbcType=CHAR}
+    and status=0
+    <!-- and chat_type=&quot;群消息&quot; -->
+  </select>
+  
+  	<!-- 返回未读消息 -->
+  	<!-- SELECT  * from chat LEFT JOIN read_record 
+  	on chat.chat_id=read_record.chat_id 
+  	where chat_to="62af91dbd75b4a28a304044647bded0c" 
+  	GROUP BY   chat_from -->
+	<select id="selectNeedDealMsg" parameterType="java.lang.String" resultMap="NeedReadResultMap">
+    select 
+    count(*) as sum,chat_from,chat_to,chat_type,user_name
+    from chat
+    LEFT JOIN read_record 
+	on chat.chat_id=read_record.chat_id 
+	left join user on
+	user.user_id = chat.chat_from
+	where read_record.user_id=#{arg0}
+	and chat.chat_type=#{arg1}
+	and read_record.status = 0
+	group by chat_from
+  </select>
+  <!-- 未读群消息 -->
+  <select id="selectNeedDealRoomMsg" parameterType="java.lang.String" resultMap="NeedReadRoomResultMap">
+    select 
+    count(*) as sum,chat_from,chat_to,chat_type,room_name
+    from chat
+    LEFT JOIN read_record 
+	on chat.chat_id=read_record.chat_id 
+	left join chat_room 
+	on chat.chat_to=chat_room.room_id
+	where user_id=#{arg0}
+	and chat_type=#{arg1}
+	and status = 0
+	group by chat_to
+  </select>
+  
+  
+	
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from chat
+    where chat_id = #{chatId,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.codelover.bean.Chat">
+    insert into chat (chat_id, chat_info, chat_from, 
+      chat_to, chat_time, chat_type
+      )
+    values (#{chatId,jdbcType=CHAR}, #{chatInfo,jdbcType=VARCHAR}, #{chatFrom,jdbcType=CHAR}, 
+      #{chatTo,jdbcType=CHAR}, #{chatTime,jdbcType=BIGINT}, #{chatType,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.codelover.bean.Chat">
+    insert into chat
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="chatId != null">
+        chat_id,
+      </if>
+      <if test="chatInfo != null">
+        chat_info,
+      </if>
+      <if test="chatFrom != null">
+        chat_from,
+      </if>
+      <if test="chatTo != null">
+        chat_to,
+      </if>
+      <if test="chatTime != null">
+        chat_time,
+      </if>
+      <if test="chatType != null">
+        chat_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="chatId != null">
+        #{chatId,jdbcType=CHAR},
+      </if>
+      <if test="chatInfo != null">
+        #{chatInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="chatFrom != null">
+        #{chatFrom,jdbcType=CHAR},
+      </if>
+      <if test="chatTo != null">
+        #{chatTo,jdbcType=CHAR},
+      </if>
+      <if test="chatTime != null">
+        #{chatTime,jdbcType=BIGINT},
+      </if>
+      <if test="chatType != null">
+        #{chatType,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.codelover.bean.Chat">
+    update chat
+    <set>
+      <if test="chatInfo != null">
+        chat_info = #{chatInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="chatFrom != null">
+        chat_from = #{chatFrom,jdbcType=CHAR},
+      </if>
+      <if test="chatTo != null">
+        chat_to = #{chatTo,jdbcType=CHAR},
+      </if>
+      <if test="chatTime != null">
+        chat_time = #{chatTime,jdbcType=BIGINT},
+      </if>
+      <if test="chatType != null">
+        chat_type = #{chatType,jdbcType=CHAR},
+      </if>
+    </set>
+    where chat_id = #{chatId,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.codelover.bean.Chat">
+    update chat
+    set chat_info = #{chatInfo,jdbcType=VARCHAR},
+      chat_from = #{chatFrom,jdbcType=CHAR},
+      chat_to = #{chatTo,jdbcType=CHAR},
+      chat_time = #{chatTime,jdbcType=BIGINT},
+      chat_type = #{chatType,jdbcType=CHAR}
+    where chat_id = #{chatId,jdbcType=CHAR}
+  </update>
+</mapper>

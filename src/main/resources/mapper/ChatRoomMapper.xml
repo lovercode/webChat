@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.codelover.dao.ChatRoomMapper">
+  <resultMap id="BaseResultMap" type="com.codelover.bean.ChatRoom">
+    <id column="room_id" jdbcType="CHAR" property="roomId" />
+    <result column="room_name" jdbcType="VARCHAR" property="roomName" />
+    <result column="room_des" jdbcType="VARCHAR" property="roomDes" />
+    <result column="create_user" jdbcType="CHAR" property="createUser" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    room_id, room_name, room_des, create_user
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from chat_room
+    where room_id = #{roomId,jdbcType=CHAR}
+  </select>
+  <!-- 获取当前用户所有群聊 -->
+  <select id="findMyChatRoom" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    *
+    from chat_room
+    left join room_user on  chat_room.room_id=room_user.room_id
+    where room_user.user_id=#{arg0}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from chat_room
+    where room_id = #{roomId,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.codelover.bean.ChatRoom">
+    insert into chat_room (room_id, room_name, room_des, 
+      create_user)
+    values (#{roomId,jdbcType=CHAR}, #{roomName,jdbcType=VARCHAR}, #{roomDes,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.codelover.bean.ChatRoom">
+    insert into chat_room
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="roomId != null">
+        room_id,
+      </if>
+      <if test="roomName != null">
+        room_name,
+      </if>
+      <if test="roomDes != null">
+        room_des,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="roomId != null">
+        #{roomId,jdbcType=CHAR},
+      </if>
+      <if test="roomName != null">
+        #{roomName,jdbcType=VARCHAR},
+      </if>
+      <if test="roomDes != null">
+        #{roomDes,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.codelover.bean.ChatRoom">
+    update chat_room
+    <set>
+      <if test="roomName != null">
+        room_name = #{roomName,jdbcType=VARCHAR},
+      </if>
+      <if test="roomDes != null">
+        room_des = #{roomDes,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=CHAR},
+      </if>
+    </set>
+    where room_id = #{roomId,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.codelover.bean.ChatRoom">
+    update chat_room
+    set room_name = #{roomName,jdbcType=VARCHAR},
+      room_des = #{roomDes,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=CHAR}
+    where room_id = #{roomId,jdbcType=CHAR}
+  </update>
+</mapper>

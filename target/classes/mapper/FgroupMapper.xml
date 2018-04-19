@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.codelover.dao.FgroupMapper">
+  <resultMap id="BaseResultMap" type="com.codelover.bean.Fgroup">
+    <id column="group_id" jdbcType="CHAR" property="groupId" />
+    <result column="group_name" jdbcType="VARCHAR" property="groupName" />
+    <result column="user_id" jdbcType="CHAR" property="userId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    group_id, group_name, user_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from fgroup
+    where group_id = #{groupId,jdbcType=CHAR}
+  </select>
+  
+  <!-- 根据用户和组名查找 -->
+  <select id="selectByNameWithUser" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from fgroup
+    where group_name = #{arg0,jdbcType=VARCHAR}
+    and
+    user_id = #{arg1,jdbcType=CHAR}
+  </select>
+  <!-- 根据id和用户查找 -->
+  <select id="selectByIdAndUser" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from fgroup
+    where group_id = #{arg0,jdbcType=VARCHAR}
+    and
+    user_id = #{arg1,jdbcType=CHAR}
+  </select>
+	<!-- 根据用户获取分组 -->
+	<select id="selectByUser" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from fgroup
+    where 
+    user_id = #{arg1,jdbcType=CHAR}
+  </select>  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from fgroup
+    where group_id = #{groupId,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.codelover.bean.Fgroup">
+    insert into fgroup (group_id, group_name, user_id
+      )
+    values (#{groupId,jdbcType=CHAR}, #{groupName,jdbcType=VARCHAR}, #{userId,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.codelover.bean.Fgroup">
+    insert into fgroup
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="groupId != null">
+        group_id,
+      </if>
+      <if test="groupName != null">
+        group_name,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="groupId != null">
+        #{groupId,jdbcType=CHAR},
+      </if>
+      <if test="groupName != null">
+        #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.codelover.bean.Fgroup">
+    update fgroup
+    <set>
+      <if test="groupName != null">
+        group_name = #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=CHAR},
+      </if>
+    </set>
+    where group_id = #{groupId,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.codelover.bean.Fgroup">
+    update fgroup
+    set group_name = #{groupName,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=CHAR}
+    where group_id = #{groupId,jdbcType=CHAR}
+  </update>
+</mapper>

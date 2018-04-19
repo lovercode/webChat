@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.codelover.dao.RoomUserMapper">
+  <resultMap id="BaseResultMap" type="com.codelover.bean.RoomUser">
+    <id column="room_user_id" jdbcType="CHAR" property="roomUserId" />
+    <result column="user_id" jdbcType="CHAR" property="userId" />
+    <result column="user_type" jdbcType="CHAR" property="userType" />
+    <result column="room_id" jdbcType="CHAR" property="roomId" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+  </resultMap>
+  
+  <resultMap id="MyResultMap" type="com.codelover.bean.RoomUser">
+    <id column="room_user_id" jdbcType="CHAR" property="roomUserId" />
+    <result column="user_id" jdbcType="CHAR" property="userId" />
+    <result column="user_type" jdbcType="CHAR" property="userType" />
+    <result column="room_id" jdbcType="CHAR" property="roomId" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <association property="userInfo" javaType="com.codelover.bean.User"> 
+        <result column="user_name" jdbcType="VARCHAR" property="userName" />
+	    <result column="user_sex" jdbcType="CHAR" property="userSex" />
+	    <result column="user_real_name" jdbcType="VARCHAR" property="userRealName" />
+	    <result column="user_age" jdbcType="INTEGER" property="userAge" />
+	    <result column="user_qq" jdbcType="VARCHAR" property="userQq" />
+	    <result column="user_wechat" jdbcType="VARCHAR" property="userWechat" />
+	    <result column="user_email" jdbcType="VARCHAR" property="userEmail" />
+	    <result column="user_img" jdbcType="VARCHAR" property="userImg" />
+	    <result column="user_word" jdbcType="VARCHAR" property="userWord" />
+	    <result column="user_status" jdbcType="VARCHAR" property="userStatus" />
+    </association>  
+  </resultMap>
+  <sql id="Base_Column_List">
+    room_user_id, user_id, user_type, room_id, user_name
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from room_user
+    where room_user_id = #{roomUserId,jdbcType=CHAR}
+  </select>
+  
+  <!-- 根据用户id和房间id查询是否存在 -->
+  <select id="selectByUserRoom" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from room_user
+    where room_id = #{arg1,jdbcType=CHAR}
+    and 
+    user_id = #{arg0}
+  </select>
+  <!-- 查询所有群成员 -->
+  <select id="selectByRoomId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    room_user_id,room_user.user_id,room_user.user_type,
+    room_user.room_id,user.user_name
+    
+    from room_user
+    left join user on user.user_id=room_user.user_id
+    where room_id = #{arg0,jdbcType=CHAR}
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from room_user
+    where room_user_id = #{roomUserId,jdbcType=CHAR}
+  </delete>
+  <!-- 根据用户和群删除记录 -->
+  <delete id="deleteByUserRoom" parameterType="java.lang.String">
+    delete from room_user
+    where user_id = #{arg0,jdbcType=CHAR}
+    and room_id=#{arg1}
+  </delete>
+  
+  <insert id="insert" parameterType="com.codelover.bean.RoomUser">
+    insert into room_user (room_user_id, user_id, user_type, 
+      room_id, user_name)
+    values (#{roomUserId,jdbcType=CHAR}, #{userId,jdbcType=CHAR}, #{userType,jdbcType=CHAR}, 
+      #{roomId,jdbcType=CHAR}, #{userName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.codelover.bean.RoomUser">
+    insert into room_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="roomUserId != null">
+        room_user_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userType != null">
+        user_type,
+      </if>
+      <if test="roomId != null">
+        room_id,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="roomUserId != null">
+        #{roomUserId,jdbcType=CHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=CHAR},
+      </if>
+      <if test="userType != null">
+        #{userType,jdbcType=CHAR},
+      </if>
+      <if test="roomId != null">
+        #{roomId,jdbcType=CHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.codelover.bean.RoomUser">
+    update room_user
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=CHAR},
+      </if>
+      <if test="userType != null">
+        user_type = #{userType,jdbcType=CHAR},
+      </if>
+      <if test="roomId != null">
+        room_id = #{roomId,jdbcType=CHAR},
+      </if>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where room_user_id = #{roomUserId,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.codelover.bean.RoomUser">
+    update room_user
+    set user_id = #{userId,jdbcType=CHAR},
+      user_type = #{userType,jdbcType=CHAR},
+      room_id = #{roomId,jdbcType=CHAR},
+      user_name = #{userName,jdbcType=VARCHAR}
+    where room_user_id = #{roomUserId,jdbcType=CHAR}
+  </update>
+</mapper>

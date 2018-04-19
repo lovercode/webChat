@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.codelover.dao.TokenMapper">
+  <resultMap id="BaseResultMap" type="com.codelover.bean.Token">
+    <id column="token_id" jdbcType="CHAR" property="tokenId" />
+    <result column="token_name" jdbcType="VARCHAR" property="tokenName" />
+    <result column="token_value" jdbcType="VARCHAR" property="tokenValue" />
+    <result column="token_type" jdbcType="VARCHAR" property="tokenType" />
+    <result column="time" jdbcType="BIGINT" property="time" />
+    <result column="user_id" jdbcType="CHAR" property="userId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    token_id, token_name, token_value, token_type, time, user_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from token
+    where token_id = #{tokenId,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from token
+    where token_id = #{tokenId,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.codelover.bean.Token">
+    insert into token (token_id, token_name, token_value, 
+      token_type, time, user_id
+      )
+    values (#{tokenId,jdbcType=CHAR}, #{tokenName,jdbcType=VARCHAR}, #{tokenValue,jdbcType=VARCHAR}, 
+      #{tokenType,jdbcType=VARCHAR}, #{time,jdbcType=BIGINT}, #{userId,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.codelover.bean.Token">
+    insert into token
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="tokenId != null">
+        token_id,
+      </if>
+      <if test="tokenName != null">
+        token_name,
+      </if>
+      <if test="tokenValue != null">
+        token_value,
+      </if>
+      <if test="tokenType != null">
+        token_type,
+      </if>
+      <if test="time != null">
+        time,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="tokenId != null">
+        #{tokenId,jdbcType=CHAR},
+      </if>
+      <if test="tokenName != null">
+        #{tokenName,jdbcType=VARCHAR},
+      </if>
+      <if test="tokenValue != null">
+        #{tokenValue,jdbcType=VARCHAR},
+      </if>
+      <if test="tokenType != null">
+        #{tokenType,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null">
+        #{time,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.codelover.bean.Token">
+    update token
+    <set>
+      <if test="tokenName != null">
+        token_name = #{tokenName,jdbcType=VARCHAR},
+      </if>
+      <if test="tokenValue != null">
+        token_value = #{tokenValue,jdbcType=VARCHAR},
+      </if>
+      <if test="tokenType != null">
+        token_type = #{tokenType,jdbcType=VARCHAR},
+      </if>
+      <if test="time != null">
+        time = #{time,jdbcType=BIGINT},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=CHAR},
+      </if>
+    </set>
+    where token_id = #{tokenId,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.codelover.bean.Token">
+    update token
+    set token_name = #{tokenName,jdbcType=VARCHAR},
+      token_value = #{tokenValue,jdbcType=VARCHAR},
+      token_type = #{tokenType,jdbcType=VARCHAR},
+      time = #{time,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=CHAR}
+    where token_id = #{tokenId,jdbcType=CHAR}
+  </update>
+</mapper>

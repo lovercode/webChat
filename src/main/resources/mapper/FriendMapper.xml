@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.codelover.dao.FriendMapper">
+  <resultMap id="BaseResultMap" type="com.codelover.bean.Friend">
+    <id column="friend_id" jdbcType="CHAR" property="friendId" />
+    <id column="user_id" jdbcType="CHAR" property="userId" />
+    <result column="validate_info" jdbcType="VARCHAR" property="validateInfo" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="group_id" jdbcType="CHAR" property="groupId" />
+  </resultMap>
+  
+  <resultMap id="MyResultMap" type="com.codelover.bean.Friend">
+    <id column="friend_id" jdbcType="CHAR" property="friendId" />
+    <id column="user_id" jdbcType="CHAR" property="userId" />
+    <result column="validate_info" jdbcType="VARCHAR" property="validateInfo" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="group_id" jdbcType="CHAR" property="groupId" />
+    <association property="friendInfo" javaType="com.codelover.bean.User"> 
+        <result column="user_name" jdbcType="VARCHAR" property="userName" />
+	    <result column="user_sex" jdbcType="CHAR" property="userSex" />
+	    <result column="user_real_name" jdbcType="VARCHAR" property="userRealName" />
+	    <result column="user_age" jdbcType="INTEGER" property="userAge" />
+	    <result column="user_qq" jdbcType="VARCHAR" property="userQq" />
+	    <result column="user_wechat" jdbcType="VARCHAR" property="userWechat" />
+	    <result column="user_email" jdbcType="VARCHAR" property="userEmail" />
+	    <result column="user_img" jdbcType="VARCHAR" property="userImg" />
+	    <result column="user_word" jdbcType="VARCHAR" property="userWord" />
+	    <result column="user_status" jdbcType="VARCHAR" property="userStatus" />
+    </association>  
+  </resultMap>
+  <sql id="Base_Column_List">
+    friend_id, user_id, validate_info, status, group_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="com.codelover.bean.FriendKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from friend
+    where friend_id = #{friendId,jdbcType=CHAR}
+      and user_id = #{userId,jdbcType=CHAR}
+  </select>
+  
+  <!-- 根据分组查找朋友 -->
+  <select id="selectByGroup" parameterType="com.codelover.bean.FriendKey" resultMap="MyResultMap">
+    select 
+    <!-- <include refid="Base_Column_List" /> -->
+    *
+    from friend
+    left join user on user.user_id=friend.friend_id
+    where group_id = #{groupId,jdbcType=CHAR}
+    and status=1
+  </select>
+  
+  <!-- 查找未通过认证的朋友 -->
+  <select id="selectByStatus" parameterType="com.codelover.bean.FriendKey" resultMap="MyResultMap">
+    select 
+    <!-- <include refid="Base_Column_List" /> -->
+    *
+    from friend
+    left join user on user.user_id=friend.user_id
+    where friend.friend_id = #{arg0,jdbcType=CHAR}
+    and status=${arg1}
+  </select>
+  
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="com.codelover.bean.FriendKey">
+    delete from friend
+    where friend_id = #{friendId,jdbcType=CHAR}
+      and user_id = #{userId,jdbcType=CHAR}
+  </delete>
+  
+  <delete id="deleteByGroup" parameterType="com.codelover.bean.FriendKey">
+    delete from friend
+    where group_id = #{arg0,jdbcType=CHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.codelover.bean.Friend">
+    insert into friend (friend_id, user_id, validate_info, 
+      status, group_id)
+    values (#{friendId,jdbcType=CHAR}, #{userId,jdbcType=CHAR}, #{validateInfo,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{groupId,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.codelover.bean.Friend">
+    insert into friend
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="friendId != null">
+        friend_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="validateInfo != null">
+        validate_info,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="groupId != null">
+        group_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="friendId != null">
+        #{friendId,jdbcType=CHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=CHAR},
+      </if>
+      <if test="validateInfo != null">
+        #{validateInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="groupId != null">
+        #{groupId,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.codelover.bean.Friend">
+    update friend
+    <set>
+      <if test="validateInfo != null">
+        validate_info = #{validateInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="groupId != null">
+        group_id = #{groupId,jdbcType=CHAR},
+      </if>
+    </set>
+    where friend_id = #{friendId,jdbcType=CHAR}
+      and user_id = #{userId,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.codelover.bean.Friend">
+    update friend
+    set validate_info = #{validateInfo,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      group_id = #{groupId,jdbcType=CHAR}
+    where friend_id = #{friendId,jdbcType=CHAR}
+      and user_id = #{userId,jdbcType=CHAR}
+  </update>
+  <!-- 设置朋友状态 -->
+  <update id="setFriendStatusByGroup" parameterType="com.codelover.bean.Friend">
+    update friend
+    set 
+      status = #{arg0,jdbcType=INTEGER}
+    where group_id = #{arg1,jdbcType=CHAR}
+  </update>
+  
+</mapper>
